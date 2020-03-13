@@ -3,6 +3,8 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/resolver"
 	"io/ioutil"
 
 	"github.com/mwitkow/grpc-proxy/proxy"
@@ -66,6 +68,8 @@ var (
 )
 
 func dialBackendOrFail() *grpc.ClientConn {
+	resolver.SetDefaultScheme("dns")
+
 	if *flagBackendHostPort == "" {
 		logrus.Fatalf("flag 'backend_addr' must be set")
 	}
@@ -86,6 +90,8 @@ func dialBackendOrFail() *grpc.ClientConn {
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(*flagMaxCallRecvMsgSize)),
 		grpc.WithBackoffMaxDelay(*flagBackendBackoffMaxDelay),
 	)
+
+	grpc.WithBalancerName(roundrobin.Name)
 
 	cc, err := grpc.Dial(*flagBackendHostPort, opt...)
 	if err != nil {
