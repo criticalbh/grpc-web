@@ -68,8 +68,6 @@ var (
 )
 
 func dialBackendOrFail() *grpc.ClientConn {
-	resolver.SetDefaultScheme("dns")
-
 	if *flagBackendHostPort == "" {
 		logrus.Fatalf("flag 'backend_addr' must be set")
 	}
